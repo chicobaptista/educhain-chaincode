@@ -1,0 +1,45 @@
+[
+  {
+    "transactionName": "studentExists",
+    "transactionLabel": "A test studentExists transaction",
+    "arguments": ["b3bb80d9-799e-49e8-ab0f-841ffd8be8bc"],
+    "transientData": {}
+  },
+  {
+    "transactionName": "createUser",
+    "transactionLabel": "A test createUser transaction",
+    "arguments": [
+      {
+        "id": "b3bb80d9-799e-49e8-ab0f-841ffd8be8bc",
+        "name": "John Doe",
+        "email": "john.doe@email.com",
+        "publicKey": "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJS+Q2rOf/itOXOfk2CA/tq7nIgKN197HafHsd3BShCzqPRkqCYuoZvPzMyyOnJNQWz2w6HeUrZCAGE6xKa1jqECAwEAAQ=="
+      }
+    ],
+    "transientData": {}
+  },
+  {
+    "transactionName": "readStudent",
+    "transactionLabel": "A test readStudent transaction",
+    "arguments": ["b3bb80d9-799e-49e8-ab0f-841ffd8be8bc"],
+    "transientData": {}
+  },
+  {
+    "transactionName": "updateStudent",
+    "transactionLabel": "A test updateStudent transaction",
+    "arguments": [
+      {
+        "id": "b3bb80d9-799e-49e8-ab0f-841ffd8be8bc",
+        "name": "Jane Doe",
+        "email": "john.doe@email.com"
+      }
+    ],
+    "transientData": {}
+  },
+  {
+    "transactionName": "deleteStudent",
+    "transactionLabel": "A test deleteStudent transaction",
+    "arguments": ["b3bb80d9-799e-49e8-ab0f-841ffd8be8bc"],
+    "transientData": {}
+  }
+]
