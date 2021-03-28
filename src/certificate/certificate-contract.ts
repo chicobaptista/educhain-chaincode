@@ -16,6 +16,7 @@ export class CertificateContract extends Contract {
   }
 
   @Transaction(true)
+  @Returns('string')
   public async createCertificate(
     ctx: Context,
     certificate: Certificate
@@ -46,6 +47,7 @@ export class CertificateContract extends Contract {
   }
 
   @Transaction(false)
+  @Returns('Certificate')
   public async readCertificate(
     ctx: Context,
     certificateId: string
