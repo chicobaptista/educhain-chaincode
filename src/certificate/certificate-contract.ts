@@ -44,4 +44,18 @@ export class CertificateContract extends Contract {
     await ctx.stub.putState(certificate.id, buffer)
     return certificate.id
   }
+
+  @Transaction(false)
+  public async readCertificate(
+    ctx: Context,
+    certificateId: string
+  ): Promise<Certificate> {
+    const exists: boolean = await this.certificateExists(ctx, certificateId)
+    if (!exists) {
+      throw new Error(`The certificate ${certificateId} does not exist`)
+    }
+    const data: Uint8Array = await ctx.stub.getState(certificateId)
+    const certificate: Certificate = JSON.parse(data.toString()) as Certificate
+    return certificate
+  }
 }
