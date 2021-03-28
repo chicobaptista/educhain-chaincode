@@ -4,7 +4,6 @@
 
 import { Context } from 'fabric-contract-api'
 import { ChaincodeStub, ClientIdentity } from 'fabric-shim'
-import { CourseContract } from '../index'
 
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
@@ -69,4 +68,8 @@ describe('CertificateContract', () => {
       .withArgs(certificate.id)
       .resolves(Buffer.from(JSON.stringify(certificate)))
   })
+
+  describe('#certificateExists', () => {})
+  describe('#readCertificate', () => {})
+  describe('#createCertificate', () => {})
 })
