@@ -51,7 +51,7 @@ describe('CertificateContract', () => {
     const certificate: Certificate = {
       id: '8fc68828-cd82-4554-a4ab-880c2077748c',
       studentId: 'b3bb80d9-799e-49e8-ab0f-841ffd8be8bc',
-      completionDate: new Date(),
+      completionDate: new Date('1995-12-17T03:24:00'),
       duration: 2,
       courseId: 'f47d68f7-0883-4989-9757-39b32e5389ac',
       instructorId: 'b3bb80d9-799e-49e8-ab0f-841ffd8be8bc'
@@ -125,10 +125,72 @@ describe('CertificateContract', () => {
         Buffer.from(JSON.stringify(newCertificate))
       )
     })
-    it('should throw an error for a certificate that already exists', async () => {})
-    it('should throw an error for a course that does not exist', async () => {})
-    it('should throw an error for an instructor that does not exist', async () => {})
-    it('should throw an error for a student that does not exist', async () => {})
+    it('should throw an error for a certificate that already exists', async () => {
+      await contract
+        .createCertificate(ctx, certificate)
+        .should.be.rejectedWith(
+          /The certificate 8fc68828-cd82-4554-a4ab-880c2077748c already exists/
+        )
+    })
+    it('should throw an error for a course that does not exist', async () => {
+      const newCertificate: Certificate = {
+        ...certificate,
+        id: 'fdfb7a6f-6d6f-459c-b968-8c89d6afbb74',
+        courseId: 'cf29911a-8183-4866-8270-6dd4d422e894'
+      }
+      await contract
+        .createCertificate(ctx, newCertificate)
+        .should.be.rejectedWith(
+          /The course cf29911a-8183-4866-8270-6dd4d422e894 does not exist/
+        )
+    })
+
+    it('should throw an error for an instructor that does not exist', async () => {
+      const newCertificate: Certificate = {
+        ...certificate,
+        id: 'fdfb7a6f-6d6f-459c-b968-8c89d6afbb74',
+        instructorId: 'cf29911a-8183-4866-8270-6dd4d422e894'
+      }
+      await contract
+        .createCertificate(ctx, newCertificate)
+        .should.be.rejectedWith(
+          /The user cf29911a-8183-4866-8270-6dd4d422e894 does not exist/
+        )
+    })
+    it('should throw an error for a student that does not exist', async () => {
+      const newCertificate: Certificate = {
+        ...certificate,
+        id: 'fdfb7a6f-6d6f-459c-b968-8c89d6afbb74',
+        studentId: 'cf29911a-8183-4866-8270-6dd4d422e894'
+      }
+      await contract
+        .createCertificate(ctx, newCertificate)
+        .should.be.rejectedWith(
+          /The user cf29911a-8183-4866-8270-6dd4d422e894 does not exist/
+        )
+    })
   })
-  describe('#readCertificate', () => {})
+  describe('#readCertificate', () => {
+    const certificate: Certificate = {
+      id: '8fc68828-cd82-4554-a4ab-880c2077748c',
+      studentId: 'b3bb80d9-799e-49e8-ab0f-841ffd8be8bc',
+      completionDate: new Date('1995-12-17T03:24:00'),
+      duration: 2,
+      courseId: 'f47d68f7-0883-4989-9757-39b32e5389ac',
+      instructorId: 'b3bb80d9-799e-49e8-ab0f-841ffd8be8bc'
+    }
+    it('should return a certificate', async () => {
+      await contract
+        .readCertificate(ctx, certificate.id)
+        .should.eventually.deep.equal(JSON.parse(JSON.stringify(certificate)))
+    })
+
+    it('should throw an error for a course that does not exist', async () => {
+      await contract
+        .readCertificate(ctx, 'cf29911a-8183-4866-8270-6dd4d422e894')
+        .should.be.rejectedWith(
+          /The certificate cf29911a-8183-4866-8270-6dd4d422e894 does not exist/
+        )
+    })
+  })
 })
