@@ -107,11 +107,7 @@ export class CourseContract extends Contract {
       throw new Error(`The user ${studentId} is already enrolled`)
     }
 
-    if (!hasStudents) {
-      existingCourse.students = [studentId]
-    } else {
-      existingCourse.students.push(studentId)
-    }
+    existingCourse.students.push(studentId)
     const buffer: Buffer = Buffer.from(JSON.stringify(existingCourse))
     await ctx.stub.putState(courseId, buffer)
   }
@@ -128,12 +124,6 @@ export class CourseContract extends Contract {
     }
 
     const existingCourse: Course = await this.readCourse(ctx, courseId)
-    const hasStudents: boolean = existingCourse.students.length >= 0
-    if (!hasStudents) {
-      throw new Error(
-        `The user ${studentId} is not enrolled in the course ${courseId}`
-      )
-    }
     const studentIndex: number = await existingCourse.students.find(
       (stdId) => stdId === studentId
     )
@@ -181,13 +171,6 @@ export class CourseContract extends Contract {
       ctx,
       studentId
     )
-
-    const hasStudents: boolean = existingCourse.students.length >= 0
-    if (!hasStudents) {
-      throw new Error(
-        `The user ${studentId} is not enrolled in the course ${courseId}`
-      )
-    }
 
     const studentIndex: number = await existingCourse.students.find(
       (stdId) => stdId === studentId
