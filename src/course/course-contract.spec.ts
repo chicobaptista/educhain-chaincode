@@ -344,10 +344,6 @@ describe('CourseContract', () => {
         certificates: [certificateId]
       }
       ctx.stub.putState.should.have.been.calledWith(
-        certificateId,
-        Buffer.from(JSON.stringify(studentWithCertificate))
-      )
-      ctx.stub.putState.should.have.been.calledWith(
         student.id,
         Buffer.from(JSON.stringify(studentWithCertificate))
       )
