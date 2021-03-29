@@ -270,6 +270,17 @@ describe('CourseContract', () => {
         Buffer.from(JSON.stringify(courseWithoutStudent))
       )
     })
+    it('should throw an error for a course that does not exist', async () => {
+      const invalidCourse = {
+        ...course,
+        id: '4609d932-32d0-4681-a762-17524514939b'
+      }
+      await contract
+        .disenrollStudent(ctx, invalidCourse.id, student.id)
+        .should.be.rejectedWith(
+          /The course 4609d932-32d0-4681-a762-17524514939b does not exist/
+        )
+    })
     it('should throw an error for a student that is not enrolled', async () => {
       ctx.stub.getState
         .withArgs(course.id)
@@ -282,6 +293,21 @@ describe('CourseContract', () => {
         .disenrollStudent(ctx, course.id, invalidStudent.id)
         .should.be.rejectedWith(
           /The user 4609d932-32d0-4681-a762-17524514939b is not enrolled in the course f47d68f7-0883-4989-9757-39b32e5389ac/
+        )
+    })
+    it('should throw an error for a course that has no students enrolled', async () => {
+      const courseWithoutStudent: Course = {
+        ...course,
+        students: []
+      }
+      ctx.stub.getState
+        .withArgs(courseWithoutStudent.id)
+        .resolves(Buffer.from(JSON.stringify(courseWithoutStudent)))
+
+      await contract
+        .disenrollStudent(ctx, courseWithoutStudent.id, student.id)
+        .should.be.rejectedWith(
+          /The user b3bb80d9-799e-49e8-ab0f-841ffd8be8bc is not enrolled in the course f47d68f7-0883-4989-9757-39b32e5389ac/
         )
     })
   })
