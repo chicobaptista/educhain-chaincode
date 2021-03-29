@@ -11,10 +11,10 @@ import {
 } from 'fabric-contract-api'
 import { Certificate } from '../certificate/certificate'
 import { User } from '../user/user'
-import { UserContract } from '../user/user-contract'
+import { UserContract } from '../index'
 import { Course } from './course'
 import { v4 as uuidv4 } from 'uuid'
-import { CertificateContract } from '../certificate/certificate-contract'
+import { CertificateContract } from '../index'
 
 @Info({ title: 'CourseContract', description: 'My Smart Contract' })
 export class CourseContract extends Contract {
