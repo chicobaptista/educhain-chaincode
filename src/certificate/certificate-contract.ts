@@ -1,5 +1,6 @@
 import { Context, Contract, Returns, Transaction } from 'fabric-contract-api'
-import { UserContract } from '../user/user-contract'
+import { CourseContract } from '../index'
+import { UserContract } from '../index'
 import { Certificate } from './certificate'
 
 export class CertificateContract extends Contract {
@@ -25,6 +26,14 @@ export class CertificateContract extends Contract {
     if (exists) {
       throw new Error(`The certificate ${certificate.id} already exists`)
     }
+    const courseExists = await this.userContract.userExists(
+      ctx,
+      certificate.courseId
+    )
+    if (!courseExists) {
+      throw new Error(`The course ${certificate.courseId} does not exist`)
+    }
+
     const instructorExists = await this.userContract.userExists(
       ctx,
       certificate.instructorId
