@@ -1,8 +1,8 @@
 # BlockCertChain
 BlockCertChain is a dApp that originated from my MBA in Blockchain Development course final project.
-It tracks progress, participation and certification on courses and is originally aimed at empowering and rewarding continuous iprovement and training of education professionals.
+It tracks progress, participation and certification on courses and is originally aimed at empowering and rewarding continuous improvement and training for education professionals.
 
-Consists of three basic layers:
+The solution consists of three basic layers:
 * Client Application
 * Web RESTful API
 * Blockchain and chaincode
