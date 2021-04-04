@@ -1,5 +1,5 @@
-# BlockCertChain
-BlockCertChain is a dApp that originated from my MBA in Blockchain Development course final project.
+# EduChain
+EduChain is a dApp that originated from my MBA in Blockchain Development course final project.
 It tracks progress, participation and certification on courses and is originally aimed at empowering and rewarding continuous improvement and training for education professionals.
 
 The solution consists of three basic layers:
