@@ -1,6 +1,8 @@
+import { Object } from 'fabric-contract-api'
 import { v4 as uuidv4 } from 'uuid'
 import { CertificatePersistence } from './certificate-persistence'
 
+@Object()
 export class CertificateModel {
   public id: uuidv4
   public studentId: string
