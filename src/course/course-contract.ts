@@ -9,12 +9,15 @@ import {
   Returns,
   Transaction
 } from 'fabric-contract-api'
-import { Certificate } from '../certificate/certificate'
-import { User } from '../user/user'
+import { CertificatePersistence } from '../certificate/certificate-persistence'
+import { UserPersistence } from '../user/user-persistence'
 import { UserContract } from '../index'
-import { Course } from './course'
+import { CoursePersistence } from './course-persistence'
 import { v4 as uuidv4 } from 'uuid'
 import { CertificateContract } from '../index'
+import { CourseModel } from './course-model'
+import { UserModel } from '../user/user-model'
+import { CertificateModel } from '../certificate/certificate-model'
 
 @Info({ title: 'CourseContract', description: 'My Smart Contract' })
 export class CourseContract extends Contract {
@@ -29,7 +32,10 @@ export class CourseContract extends Contract {
   }
 
   @Transaction(true)
-  public async createCourse(ctx: Context, course: Course): Promise<void> {
+  public async createCourse(
+    ctx: Context,
+    course: CourseModel
+  ): Promise<string> {
     const exists: boolean = await this.courseExists(ctx, course.id)
     if (exists) {
       throw new Error(`The course ${course.id} already exists`)
@@ -41,42 +47,49 @@ export class CourseContract extends Contract {
     if (!instructorExists) {
       throw new Error(`The user ${course.instructor} does not exist`)
     }
-
-    const buffer: Buffer = Buffer.from(JSON.stringify(course))
-    await ctx.stub.putState(course.id, buffer)
+    const savedId = await this.saveCourse(ctx, course)
+    return savedId
   }
 
   @Transaction(false)
   @Returns('User')
-  public async readCourse(ctx: Context, courseId: string): Promise<Course> {
+  public async readCourse(
+    ctx: Context,
+    courseId: string
+  ): Promise<CourseModel> {
     const exists: boolean = await this.courseExists(ctx, courseId)
     if (!exists) {
       throw new Error(`The course ${courseId} does not exist`)
     }
     const data: Uint8Array = await ctx.stub.getState(courseId)
-    const student: Course = JSON.parse(data.toString()) as Course
-    return student
+    const pCourse: CoursePersistence = JSON.parse(data.toString())
+    const course = CourseModel.mapFromPersistence(pCourse)
+    return course
   }
 
   @Transaction(true)
-  public async updateCourse(ctx: Context, course: Course): Promise<void> {
+  public async updateCourse(
+    ctx: Context,
+    course: CourseModel
+  ): Promise<string> {
     const exists: boolean = await this.courseExists(ctx, course.id)
     if (!exists) {
       throw new Error(`The course ${course.id} does not exist`)
     }
-    const existingCourse: Course = await this.readCourse(ctx, course.id)
+    const existingCourse: CourseModel = await this.readCourse(ctx, course.id)
     const newCourse = { ...existingCourse, ...course }
-    const buffer: Buffer = Buffer.from(JSON.stringify(newCourse))
-    await ctx.stub.putState(course.id, buffer)
+    const savedId = await this.saveCourse(ctx, newCourse)
+    return savedId
   }
 
   @Transaction(true)
-  public async deleteCourse(ctx: Context, courseId: string): Promise<void> {
+  public async deleteCourse(ctx: Context, courseId: string): Promise<string> {
     const exists: boolean = await this.courseExists(ctx, courseId)
     if (!exists) {
       throw new Error(`The course ${courseId} does not exist`)
     }
     await ctx.stub.deleteState(courseId)
+    return courseId
   }
 
   @Transaction(true)
@@ -84,7 +97,7 @@ export class CourseContract extends Contract {
     ctx: Context,
     courseId: string,
     studentId: string
-  ): Promise<void> {
+  ): Promise<string> {
     const courseExists: boolean = await this.courseExists(ctx, courseId)
     if (!courseExists) {
       throw new Error(`The course ${courseId} does not exist`)
@@ -98,7 +111,7 @@ export class CourseContract extends Contract {
       throw new Error(`The user ${studentId} does not exist`)
     }
 
-    const existingCourse: Course = await this.readCourse(ctx, courseId)
+    const existingCourse: CourseModel = await this.readCourse(ctx, courseId)
     const hasStudents: boolean = existingCourse.students.length >= 0
     const studentIsEnrolled: boolean =
       hasStudents &&
@@ -108,8 +121,8 @@ export class CourseContract extends Contract {
     }
 
     existingCourse.students.push(studentId)
-    const buffer: Buffer = Buffer.from(JSON.stringify(existingCourse))
-    await ctx.stub.putState(courseId, buffer)
+    const savedId = this.saveCourse(ctx, existingCourse)
+    return savedId
   }
 
   @Transaction(true)
@@ -117,13 +130,13 @@ export class CourseContract extends Contract {
     ctx: Context,
     courseId: string,
     studentId: string
-  ): Promise<void> {
+  ): Promise<string> {
     const courseExists: boolean = await this.courseExists(ctx, courseId)
     if (!courseExists) {
       throw new Error(`The course ${courseId} does not exist`)
     }
 
-    const existingCourse: Course = await this.readCourse(ctx, courseId)
+    const existingCourse: CourseModel = await this.readCourse(ctx, courseId)
     const studentIndex: number = await existingCourse.students.find(
       (stdId) => stdId === studentId
     )
@@ -133,8 +146,8 @@ export class CourseContract extends Contract {
       )
     }
     existingCourse.students.splice(studentIndex, 1)
-    const buffer: Buffer = Buffer.from(JSON.stringify(existingCourse))
-    await ctx.stub.putState(courseId, buffer)
+    const savedId = this.saveCourse(ctx, existingCourse)
+    return savedId
   }
 
   @Transaction(true)
@@ -147,7 +160,7 @@ export class CourseContract extends Contract {
     if (!exists) {
       throw new Error(`The course ${courseId} does not exist`)
     }
-    const existingCourse: Course = await this.readCourse(ctx, courseId)
+    const existingCourse: CourseModel = await this.readCourse(ctx, courseId)
 
     const instructorExists: boolean = await this.userContract.userExists(
       ctx,
@@ -167,7 +180,7 @@ export class CourseContract extends Contract {
       throw new Error(`The user ${studentId} does not exist`)
     }
 
-    const existingStudent: User = await this.userContract.readUser(
+    const existingStudent: UserModel = await this.userContract.readUser(
       ctx,
       studentId
     )
@@ -180,19 +193,28 @@ export class CourseContract extends Contract {
         `The user ${studentId} is not enrolled in the course ${courseId}`
       )
     }
-
-    const certificate: Certificate = {
-      id: uuidv4(),
-      studentId,
-      completionDate: new Date(),
-      duration: existingCourse.duration,
-      courseId: existingCourse.id,
-      instructorId: existingCourse.instructor
+    try {
+      const certificate: CertificateModel = {
+        id: uuidv4(),
+        studentId,
+        completionDate: new Date(),
+        duration: existingCourse.duration,
+        courseId: existingCourse.id,
+        instructorId: existingCourse.instructor
+      }
+      await this.certificateContract.createCertificate(ctx, certificate)
+      existingStudent.certificates.push(certificate.id)
+      await this.userContract.updateUser(ctx, existingStudent)
+      return certificate.id
+    } catch (error) {
+      throw new Error(`Error emmiting certificate`)
     }
+  }
 
-    existingStudent.certificates.push(certificate.id)
-    await this.certificateContract.createCertificate(ctx, certificate)
-    await this.userContract.updateUser(ctx, existingStudent)
-    return certificate.id
+  async saveCourse(ctx: Context, course: CourseModel): Promise<string> {
+    const pCourse: CoursePersistence = CourseModel.mapToPersistence(course)
+    const buffer: Buffer = Buffer.from(JSON.stringify(pCourse))
+    await ctx.stub.putState(course.id, buffer)
+    return course.id
   }
 }

@@ -1,14 +1,9 @@
-/*
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { Object, Property } from 'fabric-contract-api'
-import { v4 as uuidv4 } from 'uuid'
 
 @Object()
-export class Course {
+export class CoursePersistence {
   @Property()
-  public id: uuidv4
+  public id: string
 
   @Property()
   public name: string
@@ -17,8 +12,8 @@ export class Course {
   public duration: number
 
   @Property()
-  public instructor: uuidv4
+  public instructor: string
 
   @Property()
-  public students: uuidv4[]
+  public students: string
 }
