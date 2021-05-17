@@ -3,12 +3,11 @@
  */
 
 import { Object, Property } from 'fabric-contract-api'
-import { v4 as uuidv4 } from 'uuid'
 
 @Object()
-export class User {
+export class UserPersistence {
   @Property()
-  public id: uuidv4
+  public id: string
 
   @Property()
   public name: string
@@ -20,5 +19,5 @@ export class User {
   public publicKey: string
 
   @Property()
-  public certificates: uuidv4[]
+  public certificates: string
 }
