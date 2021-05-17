@@ -1,13 +1,14 @@
 import { Object } from 'fabric-contract-api'
+import { v4 as uuidv4 } from 'uuid'
 import { UserPersistence } from './user-persistence'
 
 @Object()
 export class UserModel {
-  public id: string
+  public id: uuidv4
   public name: string
   public email: string
   public publicKey: string
-  public certificates: string[]
+  public certificates: uuidv4[]
 
   static mapToPersistence(user: UserModel): UserPersistence {
     return {
